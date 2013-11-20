@@ -1,0 +1,31 @@
+description "<%= @service.name || @service.service %>"
+
+start on <%= @service.depends || "runlevel [2345]" %>
+stop on runlevel [016]
+
+<% if @service.dir %>
+chdir <%= @service.dir %>
+env HOME=<%= @service.dir %>
+<% end %>
+
+<% (@service.env||{}).each do |k,v| %>
+env <%= k %>=<%= v %>
+<% end %>
+
+<% if (@service.campfire && node.lifeguard.campfire_enabled && node.lifeguard.campfire_token && node.lifeguard.campfire_account && node.lifeguard.campfire_room )
+%>
+env CAMPFIRE_ACCOUNT=<%= node.lifeguard.campfire_account %>
+env CAMPFIRE_TOKEN=<%= node.lifeguard.campfire_token %>
+env CAMPFIRE_ROOM=<%= node.lifeguard.campfire_room %>
+<% end %>
+
+console log
+
+setuid <%= @service.user %>
+
+script
+<% if @service.path %>PATH=<%= @service.path %>:$PATH <% end %>/usr/bin/lifeguard <% if @service.dir %>--dir "<%= @service.dir %>" <% end %>--cmd "<%= @service.command %>" --title "<%= @service.name || @service.service %>" <% if @service.handoff %>--handoff<% end %>
+end script
+
+respawn
+respawn limit <%= node.lifeguard.respawn_count %> <%= node.lifeguard.respawn_interval %>
