@@ -12,11 +12,10 @@ env HOME=<%= @service.dir %>
 env <%= k %>=<%= v %>
 <% end %>
 
-<% if (@service.campfire && node.lifeguard.campfire_enabled && node.lifeguard.campfire_token && node.lifeguard.campfire_account && node.lifeguard.campfire_room )
-%>
-env CAMPFIRE_ACCOUNT=<%= node.lifeguard.campfire_account %>
-env CAMPFIRE_TOKEN=<%= node.lifeguard.campfire_token %>
-env CAMPFIRE_ROOM=<%= node.lifeguard.campfire_room %>
+<% if @campfire %>
+env CAMPFIRE_ACCOUNT=<%= @campfire[:account] %>
+env CAMPFIRE_TOKEN=<%= @campfire[:token] %>
+env CAMPFIRE_ROOM=<%= @campfire[:room] %>
 <% end %>
 
 console log
