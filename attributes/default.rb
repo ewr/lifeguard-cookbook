@@ -7,3 +7,5 @@ default.lifeguard.campfire_room       = nil
 
 default.lifeguard.respawn_count       = 5
 default.lifeguard.respawn_interval    = 30
+
+default.lifeguard.init_style          = "upstart"

@@ -20,12 +20,16 @@ Vagrant.configure("2") do |config|
     chef.json = {
       nodejs: {
         install_method: "package"
+      },
+      lifeguard: {
+        init_style: "runit"
       }
     }
     
     chef.run_list = [
       "recipe[lifeguard]",
-      "recipe[lifeguard::test_provider]"
+      "recipe[runit]",
+      "recipe[lifeguard-test]"
     ]
   end
 end

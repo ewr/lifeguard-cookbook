@@ -17,3 +17,10 @@ suites:
   attributes: 
     nodejs:
       install_method: "package"
+- name: runit
+  run_list: 
+    - "recipe[lifeguard]"
+    - "recipe[lifeguard-test::runit]"
+  attributes: 
+    nodejs:
+      install_method: "package"

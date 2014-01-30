@@ -1,0 +1,3 @@
+#!/bin/sh
+exec 2>&1
+exec chpst -u <%= @options[:service].user || "root" %> /usr/bin/env lifeguard <% if @options[:service].dir %>--dir "<%= @options[:service].dir %>" <% end %>--cmd "<%= @options[:service].command %>" --title "<%= @options[:service].name || @options[:service].service %>" <% if @options[:service].handoff %>--handoff<% end %>

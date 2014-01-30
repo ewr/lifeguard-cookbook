@@ -17,6 +17,9 @@
     },
     "build-essential": {
       "locked_version": "1.4.0"
+    },
+    "runit": {
+      "locked_version": "1.1.6"
     }
   }
 }

@@ -1,10 +1,4 @@
 action :enable do
-  service new_resource.service do
-    provider  Chef::Provider::Service::Upstart
-    action    :nothing
-    supports  [:enable,:start,:restart,:stop]
-  end
-  
   # -- Campfire settings -- #
   
   campfire = false
@@ -21,59 +15,142 @@ action :enable do
     end
   end
   
-  # -- write upstart file -- #
-  template "/etc/init/#{new_resource.service}.conf" do
-    cookbook "lifeguard"
-    source "lifeguard-upstart.conf.erb"
-    mode 0644
-    variables({ :service => new_resource, :campfire => campfire })
-    
-    notifies :enable, "service[#{new_resource.service}]"
+  case node.lifeguard.init_style
+  when "upstart" 
+    # -- Upstart -- #
 
-    if new_resource.restart
-      notifies :restart, "service[#{new_resource.service}]"
+    service new_resource.service do
+      provider  Chef::Provider::Service::Upstart
+      action    :nothing
+      supports  [:enable,:start,:restart,:stop]
+    end
+  
+  
+    # -- write upstart file -- #
+    template "/etc/init/#{new_resource.service}.conf" do
+      cookbook "lifeguard"
+      source "lifeguard-upstart.conf.erb"
+      mode 0644
+      variables({ :service => new_resource, :campfire => campfire })
+    
+      notifies :enable, "service[#{new_resource.service}]"
+
+      if new_resource.restart
+        notifies :restart, "service[#{new_resource.service}]"
+      end
+    
+    end
+      
+  when "runit"
+    # -- Runit -- #
+    
+    env = (new_resource.env||{}).clone
+    
+    if new_resource.dir
+      env["HOME"] = new_resource.dir
     end
     
-  end    
+    if campfire
+      env["CAMPFIRE_ACCOUNT"] = campfire.account
+      env["CAMPFIRE_TOKEN"]   = campfire.token
+      env["CAMPFIRE_ROOM"]    = campfire.room
+    end
+    
+    runit_service new_resource.service do
+      action            :enable
+      run_template_name "lifeguard_service"
+      cookbook          "lifeguard"
+      env               env
+      default_logger    true
+      options({
+        :service  => new_resource,
+        :campfire => campfire
+      })
+    end
+    
+  else
+    raise "Unknown lifeguard init_style: #{node.lifeguard.init_style}. upstart and runit supported." 
+  end
 end
 
 #----------
 
 action :start do
-  # -- start service -- #
-  service new_resource.service do
-    provider Chef::Provider::Service::Upstart
-    action :start
-  end
+  case node.lifeguard.init_style
+  when "upstart"
+    # -- start service -- #
+    service new_resource.service do
+      provider Chef::Provider::Service::Upstart
+      action :start
+    end
+    
+  when "runit"
+    runit_service new_resource.service do
+      action :start
+    end
   
+  else
+    raise "Unknown lifeguard init_style: #{node.lifeguard.init_style}. upstart and runit supported."
+  end
 end
 
 #----------
 
 action :restart do
-  # -- restart service -- #
-  service new_resource.service do
-    provider Chef::Provider::Service::Upstart
-    action :start
-  end
+  case node.lifeguard.init_style
+  when "upstart"
+    # -- restart service -- #
+    service new_resource.service do
+      provider Chef::Provider::Service::Upstart
+      action :restart
+    end
   
+  when "runit"
+    runit_service new_resource.service do
+      action :restart
+    end
+    
+  else
+    raise "Unknown lifeguard init_style: #{node.lifeguard.init_style}. upstart and runit supported."
+  end
 end
 
 #----------
 
 action :stop do
-  # -- stop service -- #
-  service new_resource.service do
-    provider Chef::Provider::Service::Upstart
-    action :stop
-  end
+  case node.lifeguard.init_style
+  when "upstart"
+    # -- stop service -- #
+    service new_resource.service do
+      provider Chef::Provider::Service::Upstart
+      action :stop
+    end
   
+  when "runit"
+    runit_service new_resource.service do
+      action :stop
+    end
+    
+  else
+    raise "Unknown lifeguard init_style: #{node.lifeguard.init_style}. upstart and runit supported."
+  end
 end
 
 #----------
 
 action :remove do
-  file "/etc/init/#{new_resource.service}.conf" do
-    action :delete
+  case node.lifeguard.init_style
+  when "upstart"
+    file "/etc/init/#{new_resource.service}.conf" do
+      action :delete
+    end
+  
+  when "runit"
+    runit_service new_resource.service do
+      action :disable
+    end
+    
+  else
+    raise "Unknown lifeguard init_style: #{node.lifeguard.init_style}. upstart and runit supported."
   end
 end
