@@ -23,7 +23,7 @@ console log
 setuid <%= @service.user %>
 
 script
-<% if @service.path %>PATH=<%= @service.path %>:$PATH <% end %>/usr/bin/lifeguard <% if @service.dir %>--dir "<%= @service.dir %>" <% end %>--cmd "<%= @service.command %>" --title "<%= @service.name || @service.service %>" <% if @service.handoff %>--handoff<% end %>
+<% if @service.path %>PATH=<%= @service.path %>:$PATH <% end %>/usr/bin/lifeguard <% if @service.monitor_dir %>--dir "<%= @service.monitor_dir %>" <% end %>--cmd "<%= @service.command %>" --title "<%= @service.name || @service.service %>" <% if @service.handoff %>--handoff<% end %>
 end script
 
 respawn
