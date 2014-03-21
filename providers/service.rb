@@ -41,19 +41,34 @@ action :enable do
       action    :nothing
       supports  [:enable,:start,:restart,:stop]
     end
-  
+
+    # HACK to restart services on config changes
+    service "#{new_resource.service}-stop" do
+      service_name  "#{new_resource.service}"
+      provider      Chef::Provider::Service::Upstart
+      action        :nothing
+      supports      [:stop]
+      notifies      :start, "service[#{new_resource.service}-start]", :immediately
+    end
+
+    service "#{new_resource.service}-start" do
+      service_name  "#{new_resource.service}"
+      provider      Chef::Provider::Service::Upstart
+      action        :nothing
+      supports      [:start]
+    end
   
     # -- write upstart file -- #
     template "/etc/init/#{new_resource.service}.conf" do
       cookbook "lifeguard"
       source "lifeguard-upstart.conf.erb"
       mode 0644
-      variables({ :service => new_resource, :campfire => campfire })
+      variables({ :service => new_resource, :campfire => campfire, :slack => slack })
     
       notifies :enable, "service[#{new_resource.service}]"
 
       if new_resource.restart
-        notifies :restart, "service[#{new_resource.service}]"
+        notifies :stop, "service[#{new_resource.service}-stop]"
       end
     
     end
