@@ -11,5 +11,6 @@ attribute :env,         :kind_of => Hash
 attribute :path,        :kind_of => String
 attribute :handoff,     :kind_of => [TrueClass, FalseClass], :default => false
 attribute :campfire,    :kind_of => [TrueClass, FalseClass], :default => true
+attribute :slack,       :kind_of => [TrueClass, FalseClass], :default => true
 attribute :restart,     :kind_of => [TrueClass, FalseClass], :default => true
 attribute :depends,     :kind_of => String, :default => nil

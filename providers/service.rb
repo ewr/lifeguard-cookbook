@@ -14,6 +14,23 @@ action :enable do
       raise "Asked to enable Campfire in Lifeguard, but account, token and room are not specified."
     end
   end
+
+  # -- Slack settings -- #
+  
+  slack = false
+
+  if (new_resource.slack || node.lifeguard.slack_by_default) && node.lifeguard.slack_enabled
+    if node.lifeguard.slack_team && node.lifeguard.slack_token && node.lifeguard.slack_channel
+      slack = {
+        team:     node.lifeguard.slack_team,
+        token:    node.lifeguard.slack_token,
+        channel:  node.lifeguard.slack_channel
+      }
+    else
+      raise "Asked to enable Slack in Lifeguard, but team, token and channel are not specified."
+    end
+  end
+  
   
   case node.lifeguard.init_style
   when "upstart" 
@@ -56,6 +73,12 @@ action :enable do
       env["CAMPFIRE_ROOM"]    = campfire.room
     end
     
+    if slack
+      env["SLACK_TEAM"]       = slack.team
+      env["SLACK_TOKEN"]      = slack.token
+      env["SLACK_CHANNEL"]    = slack.channel
+    end
+    
     runit_service new_resource.service do
       action            :enable
       run_template_name "lifeguard_service"
@@ -64,7 +87,8 @@ action :enable do
       default_logger    true
       options({
         :service  => new_resource,
-        :campfire => campfire
+        :campfire => campfire,
+        :slack    => slack
       })
     end
     
