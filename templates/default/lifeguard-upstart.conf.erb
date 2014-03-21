@@ -21,7 +21,7 @@ env CAMPFIRE_ROOM=<%= @campfire[:room] %>
 <% if @slack %>
 env SLACK_TEAM=<%= @slack[:team] %>
 env SLACK_TOKEN=<%= @slack[:token] %>
-env SLACK_CHANNEL=<%= @slack[:channel] %>
+env SLACK_CHANNEL="<%= @slack[:channel] %>"
 <% end %>
 
 console log
