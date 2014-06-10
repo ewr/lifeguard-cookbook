@@ -14,3 +14,4 @@ attribute :campfire,    :kind_of => [TrueClass, FalseClass], :default => true
 attribute :slack,       :kind_of => [TrueClass, FalseClass], :default => true
 attribute :restart,     :kind_of => [TrueClass, FalseClass], :default => true
 attribute :depends,     :kind_of => String, :default => nil
+attribute :respawn_limit, :kind_of => [TrueClass, FalseClass], :default => true

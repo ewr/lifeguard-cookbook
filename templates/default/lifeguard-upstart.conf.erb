@@ -33,4 +33,6 @@ script
 end script
 
 respawn
+<% if @service.respawn_limit %>
 respawn limit <%= node.lifeguard.respawn_count %> <%= node.lifeguard.respawn_interval %>
+<% end %>

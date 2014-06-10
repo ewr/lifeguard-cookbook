@@ -31,3 +31,8 @@ describe port(9999) do
   it { should be_listening("tcp") }
 end
 
+# -- test service 2 -- #
+
+describe file("/etc/init/lifeguard_test_service2.conf") do
+  its(:content) { should_not include("respawn limit")}
+end

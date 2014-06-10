@@ -1,4 +1,4 @@
-default.lifeguard.version             = "0.4.0"
+default.lifeguard.version             = "0.4.2"
 
 default.lifeguard.respawn_count       = 5
 default.lifeguard.respawn_interval    = 30
